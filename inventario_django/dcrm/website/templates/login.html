@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENA GDF - Autenticación</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="page-auth">
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="auth-container" id="container">
+        
+        <!-- ============================== -->
+        <!-- FORMULARIO: INICIAR SESIÓN     -->
+        <!-- ============================== -->
+        <div class="form-container login-container">
+            <form action="{% url 'login' %}" method="POST">
+                {% csrf_token %}
+                <img src="{% static 'logo.png' %}" alt="Logo SENA" class="logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/83/Sena_Colombia_logo.svg'">
+                <h1>SENA GDF</h1>
+                <p class="subtitle">Inicia sesión con tu documento y contraseña</p>
+                
+                <div class="input-group dropdown-group">
+                    <select name="tipo_documento">
+                        <option value="" disabled selected>Selecciona tu documento</option>
+                        <option value="cc">Cédula de Ciudadanía</option>
+                        <option value="ti">Tarjeta de Identidad</option>
+                        <option value="ce">Cédula de Extranjería</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <input type="text" name="documento" placeholder="Número de documento" required />
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="Contraseña" required />
+                </div>
+                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                <button type="submit" class="btn-primary">Ingresar</button>
+            </form>
+        </div>
+
+        <!-- ============================== -->
+        <!-- FORMULARIO: REGISTRO           -->
+        <!-- ============================== -->
+        <div class="form-container register-container">
+            <form action="{% url 'register' %}" method="POST">
+                {% csrf_token %}
+                <h1>Crear Cuenta</h1>
+                <p class="subtitle">Ingresa todos tus datos personales</p>
+                
+                <div style="display:flex; gap:10px; width:100%;">
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" name="nombres" placeholder="Nombres" required />
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" name="apellidos" placeholder="Apellidos" required />
+                    </div>
+                </div>
+
+                <div class="input-group dropdown-group">
+                    <select name="tipo_documento">
+                        <option value="cc">Cédula de Ciudadanía</option>
+                        <option value="ti">Tarjeta de Identidad</option>
+                        <option value="ce">Cédula de Extranjería</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" name="documento" placeholder="Número de documento" required />
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Correo electrónico" required />
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-users"></i>
+                    <select style="padding-left: 40px;" name="rol" required>
+                        <option value="" disabled selected>Selecciona tu rol</option>
+                        <option value="ADMINISTRADOR">Administrador</option>
+                        <option value="APRENDIZ">Aprendiz</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="Contraseña" required />
+                </div>
+
+                <button type="submit" class="btn-primary">Registrarse</button>
+            </form>
+        </div>
+
+        <!-- ============================== -->
+        <!-- OVERLAYS (PANEL VERDE O OSCURO)-->
+        <!-- ============================== -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <!-- Panel Verde que se ve cuando Login está activo -->
+                <div class="overlay-panel overlay-left">
+                    <h1>¿No tienes<br>cuenta?</h1>
+                    <p>Crea una aquí</p>
+                    <button class="ghost" id="signUp">Crear Cuenta</button>
+                </div>
+                <!-- Panel Verde que se ve cuando Registro está activo -->
+                <div class="overlay-panel overlay-right">
+                    <h1>¿Ya tienes<br>cuenta?</h1>
+                    <p>Inicia sesión aquí</p>
+                    <button class="ghost" id="signIn">Ingresar</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
