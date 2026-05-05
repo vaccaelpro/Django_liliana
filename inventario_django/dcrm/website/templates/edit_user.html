@@ -8,41 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <style>
-        .edit-form-container {
-            background: var(--dark-panel);
-            padding: 40px;
-            border-radius: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            border-top: 4px solid var(--sena-orange);
-        }
-        .edit-form-container .input-group input,
-        .edit-form-container .input-group select {
-            background-color: #202428;
-            color: white;
-            border: 1px solid #444;
-        }
-        .edit-form-container .input-group input:focus,
-        .edit-form-container .input-group select:focus {
-            border-color: var(--sena-orange);
-        }
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: var(--sena-green);
-            font-weight: 600;
-        }
-        .btn-cancel {
-            background-color: transparent;
-            border: 2px solid #aaa;
-            color: #aaa;
-            margin-top: 10px;
-        }
-        .btn-cancel:hover { background-color: rgba(255,255,255,0.1); }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/edit_user.css' %}">
 </head>
 <body>
     <header class="dash-header">
@@ -51,9 +17,9 @@
     </header>
 
     <div class="dash-container">
-        <!-- Form Container -->
+
         <div class="edit-form-container">
-            <h2 style="text-align: center; margin-bottom: 30px;">Modificar datos de <span style="color:var(--sena-orange);">{{ user_to_edit.first_name }}</span></h2>
+            <h2 style="text-align: center; margin-bottom: 30px;">Modificar datos de <span style="color:var(--accent);">{{ user_to_edit.first_name }}</span></h2>
             
             <form action="{% url 'edit_user' user_to_edit.id %}" method="POST" style="display:flex; flex-direction:column; align-items:flex-start;">
                 {% csrf_token %}

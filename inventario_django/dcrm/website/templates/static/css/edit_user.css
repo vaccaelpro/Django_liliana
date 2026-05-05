@@ -1,0 +1,33 @@
+.edit-form-container {
+    background: var(--panel-dark);
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    border-top: 4px solid var(--accent);
+}
+.edit-form-container .input-group input,
+.edit-form-container .input-group select {
+    background-color: #202428;
+    color: white;
+    border: 1px solid #444;
+}
+.edit-form-container .input-group input:focus,
+.edit-form-container .input-group select:focus {
+    border-color: var(--accent);
+}
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 600;
+}
+.btn-cancel {
+    background-color: transparent;
+    border: 2px solid #aaa;
+    color: #aaa;
+    margin-top: 10px;
+}
+.btn-cancel:hover { background-color: rgba(255,255,255,0.1); }

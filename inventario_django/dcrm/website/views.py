@@ -72,7 +72,7 @@ def admin_dashboard(request):
         return redirect('login')
     
     users = Usuario.objects.all()
-    # Simple search filter logic
+
     query = request.GET.get('q', '')
     if query:
         users = users.filter(first_name__icontains=query) | users.filter(documento__icontains=query)

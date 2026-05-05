@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENA - Admin Dashboard</title>
-    <!-- Google Fonts -->
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
@@ -29,7 +29,7 @@
         <form class="search-bar" method="GET" action="{% url 'admin_dashboard' %}">
             <input type="text" name="q" placeholder="Buscar por documento o nombre..." value="{{ request.GET.q }}">
             <button type="submit">Buscar</button>
-            <a href="{% url 'admin_dashboard' %}" style="text-decoration: none; align-self: center; color: var(--sena-orange); font-weight: bold; margin-left: 10px;">Limpiar</a>
+            <a href="{% url 'admin_dashboard' %}" style="text-decoration: none; align-self: center; color: var(--accent); font-weight: bold; margin-left: 10px;">Limpiar</a>
         </form>
 
         <table>
