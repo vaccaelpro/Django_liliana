@@ -1,0 +1,48 @@
+{% load static %}
+<nav class="navbar">
+    <div class="navbar-brand">
+        <img src="{% static 'logo.png' %}" alt="SENA"
+            onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/83/Sena_Colombia_logo.svg'">
+        <span>SENA GDF</span>
+    </div>
+
+    <div class="navbar-links">
+        {% if user.is_authenticated %}
+        {% if user.rol == 'ADMINISTRADOR' %}
+        <a href="{% url 'admin_dashboard' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="fa-solid fa-gauge"></i> Dashboard
+        </a>
+        <a href="{% url 'admin_dashboard' %}?q=" class="nav-link">
+            <i class="fa-solid fa-users"></i> Usuarios
+        </a>
+        {% elif user.rol == 'APRENDIZ' %}
+        <a href="{% url 'apprentice_dashboard' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'apprentice_dashboard' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i> Inicio
+        </a>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="navbar-user">
+        {% if user.is_authenticated %}
+        <div class="navbar-profile">
+            <div class="navbar-avatar">
+                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+            </div>
+            <div class="navbar-info">
+                <span class="navbar-name">{{ user.first_name }} {{ user.last_name }}</span>
+                <span class="navbar-role">{{ user.get_rol_display }}</span>
+            </div>
+        </div>
+        <a href="{% url 'logout' %}" class="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Salir
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn-logout">
+            <i class="fa-solid fa-right-to-bracket"></i> Ingresar
+        </a>
+        {% endif %}
+    </div>
+</nav>

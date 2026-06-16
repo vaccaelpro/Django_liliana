@@ -1,19 +1,19 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENA - Dashboard Aprendiz</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
+
 <body>
-    <header class="dash-header apprentice-header">
-        <h1>Portal Aprendiz - SENA</h1>
-        <a href="{% url 'logout' %}" class="btn-logout">Cerrar Sesión</a>
-    </header>
+
+    {% include 'navbar.html' %}
 
     <div class="dash-container">
         {% if messages %}
@@ -34,19 +34,33 @@
             <div class="novedad-card">
                 <div class="novedad-title">Apertura de Nuevos Cursos</div>
                 <div class="novedad-date">Publicado: 06 de Abril, 2026</div>
-                <div class="novedad-content">Se han abierto nuevas inscripciones para los cursos de bilingüismo y programación.</div>
+                <div class="novedad-content">Se han abierto nuevas inscripciones para los cursos de bilingüismo y
+                    programación.</div>
             </div>
             <div class="novedad-card">
                 <div class="novedad-title">Feria de Emprendimiento SENA</div>
                 <div class="novedad-date">Publicado: 02 de Abril, 2026</div>
-                <div class="novedad-content">Participa este fin de semana en nuestra feria. Habrá premios y reconocimiento para los aprendices.</div>
+                <div class="novedad-content">Participa este fin de semana en nuestra feria. Habrá premios y
+                    reconocimiento para los aprendices.</div>
             </div>
             <div class="novedad-card">
                 <div class="novedad-title">Actualización Plataforma Territorium</div>
                 <div class="novedad-date">Publicado: 28 de Marzo, 2026</div>
-                <div class="novedad-content">La plataforma estará en mantenimiento el día jueves de 12:00 AM a 4:00 AM.</div>
+                <div class="novedad-content">La plataforma estará en mantenimiento el día jueves de 12:00 AM a 4:00 AM.
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 4000);
+    </script>
 </body>
+
 </html>
