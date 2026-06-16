@@ -94,10 +94,16 @@
                         <option value="APRENDIZ">Aprendiz</option>
                     </select>
                 </div>
-
                 <div class="input-group">
                     <i class="fa-solid fa-lock"></i>
                     <input type="password" name="password" placeholder="Contraseña" required />
+                </div>
+
+                <div id="password-strength-container">
+                    <div id="password-strength-track">
+                        <div id="password-strength-bar"></div>
+                    </div>
+                    <span id="password-strength-label"></span>
                 </div>
 
                 <button type="submit" class="btn-primary">Registrarse</button>
@@ -109,15 +115,15 @@
             <div class="overlay">
 
                 <div class="overlay-panel overlay-left">
-                    <h1>¿No tienes<br>cuenta?</h1>
-                    <p>Crea una aquí</p>
-                    <button class="ghost" id="signUp">Crear Cuenta</button>
-                </div>
-
-                <div class="overlay-panel overlay-right">
                     <h1>¿Ya tienes<br>cuenta?</h1>
                     <p>Inicia sesión aquí</p>
                     <button class="ghost" id="signIn">Ingresar</button>
+                </div>
+
+                <div class="overlay-panel overlay-right">
+                    <h1>¿No tienes<br>cuenta?</h1>
+                    <p>Crea una aquí</p>
+                    <button class="ghost" id="signUp">Crear Cuenta</button>
                 </div>
             </div>
         </div>
@@ -125,25 +131,50 @@
     </div>
 
     <script>
+        // SPA login/registro (esto ya lo tenías)
         const signUpButton = document.getElementById('signUp');
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('container');
+        signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
+        signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
 
-        signUpButton.addEventListener('click', () => {
-            container.classList.add("right-panel-active");
-        });
-
-        signInButton.addEventListener('click', () => {
-            container.classList.remove("right-panel-active");
-        });
-
+        // Auto-dismiss alertas
         setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
                 alert.style.opacity = '0';
                 setTimeout(() => alert.remove(), 500);
             });
-        }, 5000);
+        }, 4000);
+
+        // --- BARRA DE FORTALEZA (único JS nuevo) ---
+        function evaluarPassword(valor) {
+            let puntos = 0;
+            if (valor.length >= 8) puntos++;
+            if (/[A-Z]/.test(valor)) puntos++;
+            if (/\d/.test(valor)) puntos++;
+            if (/[^a-zA-Z0-9]/.test(valor)) puntos++;
+            return puntos;
+        }
+
+        const passRegistro = document.querySelector('.register-container [name="password"]');
+        if (passRegistro) {
+            passRegistro.addEventListener('input', function () {
+                const puntos = evaluarPassword(this.value);
+                const niveles = [
+                    { color: '#e74c3c', texto: 'Muy débil' },
+                    { color: '#e67e22', texto: 'Débil' },
+                    { color: '#f1c40f', texto: 'Regular' },
+                    { color: '#2ecc71', texto: 'Segura' },
+                    { color: '#27ae60', texto: '¡Muy segura!' },
+                ];
+                const nivel = niveles[puntos];
+                document.getElementById('password-strength-bar').style.width = (puntos / 4 * 100) + '%';
+                document.getElementById('password-strength-bar').style.background = nivel.color;
+                document.getElementById('password-strength-label').textContent = this.value ? nivel.texto : '';
+                document.getElementById('password-strength-label').style.color = nivel.color;
+            });
+        }
     </script>
 </body>
 
