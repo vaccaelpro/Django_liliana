@@ -46,3 +46,14 @@
         {% endif %}
     </div>
 </nav>
+<script>
+    // Auto-dismiss alertas después de 4 segundos
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateX(40px)';
+            setTimeout(() => alert.remove(), 400);
+        });
+    }, 4000);
+</script>

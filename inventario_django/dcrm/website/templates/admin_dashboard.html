@@ -12,27 +12,22 @@
 </head>
 
 <body>
-
     {% include 'navbar.html' %}
-
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="dash-container">
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         <h2>Gestión de Usuarios</h2>
-
         <form class="search-bar" method="GET" action="{% url 'admin_dashboard' %}">
             <input type="text" name="q" placeholder="Buscar por documento o nombre..." value="{{ request.GET.q }}">
             <button type="submit">Buscar</button>
             <a href="{% url 'admin_dashboard' %}"
                 style="text-decoration: none; align-self: center; color: var(--accent); font-weight: bold; margin-left: 10px;">Limpiar</a>
         </form>
-
         <table>
             <thead>
                 <tr>
@@ -77,16 +72,6 @@
             </tbody>
         </table>
     </div>
-
-    <script>
-        setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(alert => {
-                alert.style.transition = 'opacity 0.5s ease';
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 500);
-            });
-        }, 4000);
-    </script>
 </body>
 
 </html>
