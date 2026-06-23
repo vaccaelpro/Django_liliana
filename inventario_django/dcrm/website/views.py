@@ -168,12 +168,23 @@ def logout_user(request):
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
 def admin_dashboard(request):
+    """Vista principal del panel de administración.
+    
+    Acceso restringido a usuarios con rol ADMINISTRADOR.
+    Renderiza la pantalla de bienvenida del dashboard.
+    """
     return render(request, 'admin_dashboard.html')
 
 
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
 def gestion_usuarios(request):
+    """Vista de gestión de usuarios con búsqueda y paginación.
+    
+    Soporta búsqueda por nombre o documento vía query string ?q=.
+    Pagina los resultados a 5 usuarios por página.
+    Acceso restringido a ADMINISTRADOR.
+    """
     users = Usuario.objects.all().order_by('date_joined')
     query = sanitizar(request.GET.get('q', ''))
     if query:
@@ -193,6 +204,11 @@ def gestion_usuarios(request):
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
 def logs_auditoria(request):
+    """Vista de registro de auditoría del sistema.
+    
+    Muestra los últimos 50 registros de actividad ordenados
+    por fecha descendente. Acceso restringido a ADMINISTRADOR.
+    """
     logs = LogAuditoria.objects.all().order_by('-fecha')[:50]
     return render(request, 'logs_auditoria.html', {
         'logs': logs,
@@ -378,6 +394,11 @@ def export_logs_pdf(request):
 @login_required(login_url='login')
 @user_passes_test(es_aprendiz, login_url='login')
 def apprentice_dashboard(request):
+    """Vista del panel principal del aprendiz.
+    
+    Acceso restringido a usuarios con rol APRENDIZ.
+    Renderiza la pantalla de bienvenida del aprendiz.
+    """
     return render(request, 'apprentice_dashboard.html')
 
 

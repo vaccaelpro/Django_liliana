@@ -104,13 +104,7 @@ AUTH_USER_MODEL = 'website.Usuario'
 # ============================================================
 # CAPA 4 — Security Headers
 # ============================================================
-SECURE_CONTENT_TYPE_NOSNIFF = True       # Evita MIME-type sniffing
-SECURE_BROWSER_XSS_FILTER = True         # Activa filtro XSS del navegador
-X_FRAME_OPTIONS = 'DENY'                 # Bloquea iframes (clickjacking)
-SECURE_REFERRER_POLICY = 'same-origin'   # Controla header Referrer
-
-# En producción con HTTPS activar también:
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-# SECURE_HSTS_SECONDS = 31536000
+SECURE_CONTENT_TYPE_NOSNIFF = True       
+SECURE_BROWSER_XSS_FILTER = True         
+X_FRAME_OPTIONS = 'DENY'                 
+SECURE_REFERRER_POLICY = 'same-origin'   

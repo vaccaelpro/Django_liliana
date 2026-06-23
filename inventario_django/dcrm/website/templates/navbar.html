@@ -93,28 +93,154 @@
 </div>
 
 <script>
-    // Auto-cerrar alertas
-    setTimeout(() => {
-        document.querySelectorAll('.alert').forEach(alert => {
-            alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-            alert.style.opacity = '0';
-            alert.style.transform = 'translateX(40px)';
-            setTimeout(() => alert.remove(), 400);
-        });
-    }, 4000);
+    // --------------------------------------------------------
+    // UI: Auto-cerrar alertas y Menú Hamburguesa
+    // --------------------------------------------------------
+    const autoCloseAlerts = () => {
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateX(40px)';
+                setTimeout(() => alert.remove(), 400);
+            });
+        }, 4000);
+    };
+    autoCloseAlerts();
 
-    // Menú hamburguesa
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const mobileMenu = document.getElementById('mobileMenu');
-    hamburgerBtn.addEventListener('click', () => {
-        hamburgerBtn.classList.toggle('open');
-        mobileMenu.classList.toggle('open');
-    });
-    // Cerrar menú al hacer click en un link
-    document.querySelectorAll('.mobile-link').forEach(link => {
-        link.addEventListener('click', () => {
+    if (hamburgerBtn && mobileMenu) {
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+    }
+    
+    const closeMobileMenu = () => {
+        if (hamburgerBtn && mobileMenu) {
             hamburgerBtn.classList.remove('open');
             mobileMenu.classList.remove('open');
+        }
+    };
+
+    document.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+
+    // --------------------------------------------------------
+    // SPA ROUTER: Navegación sin recarga (Fetch API)
+    // --------------------------------------------------------
+    
+    // Función para actualizar el contenido principal
+    const navigateTo = async (url, pushState = true) => {
+        try {
+            // Mostrar indicador de carga visual simple
+            document.body.style.cursor = 'wait';
+            
+            const response = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            
+            if (!response.ok) throw new Error('Error al cargar la página');
+            
+            const htmlText = await response.text();
+            
+            // Convertir texto a un documento HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            
+            // Extraer contenedores importantes
+            const newDash = doc.querySelector('.dash-container');
+            const newMessages = doc.querySelector('.messages');
+            
+            if (newDash) {
+                // Reemplazar contenido principal
+                const currentDash = document.querySelector('.dash-container');
+                if (currentDash) currentDash.replaceWith(newDash);
+                
+                // Actualizar mensajes/alertas
+                const currentMessages = document.querySelector('.messages');
+                if (newMessages) {
+                    if (currentMessages) currentMessages.replaceWith(newMessages);
+                    else document.querySelector('.navbar').after(newMessages);
+                    autoCloseAlerts(); // Reactivar timer para las nuevas alertas
+                } else if (currentMessages) {
+                    currentMessages.remove();
+                }
+
+                // Cambiar el título del documento
+                document.title = doc.title;
+                
+                // Actualizar clases activas en el navbar
+                updateActiveNavLinks(url);
+
+                if (pushState) {
+                    window.history.pushState({ path: url }, doc.title, url);
+                }
+            } else {
+                // Si la página es un login o error severo, recargar normal
+                window.location.href = url;
+            }
+        } catch (error) {
+            console.error("Error SPA:", error);
+            window.location.href = url; // Fallback
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    };
+
+    const updateActiveNavLinks = (url) => {
+        const path = new URL(url, window.location.origin).pathname;
+        document.querySelectorAll('.nav-link, .mobile-link').forEach(link => {
+            const linkPath = new URL(link.href, window.location.origin).pathname;
+            if (path === linkPath) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
         });
+    };
+
+    // Delegación de eventos global para atrapar clics en enlaces
+    document.body.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (!link) return;
+        
+        const url = link.href;
+        // Solo interceptar si es del mismo dominio, no tiene _blank y no es exportar o salir
+        if (
+            link.origin === window.location.origin && 
+            !link.getAttribute('target') &&
+            !url.includes('logout') && 
+            !url.includes('exportar') &&
+            !url.includes('delete') &&
+            !link.classList.contains('btn-logout')
+        ) {
+            e.preventDefault();
+            closeMobileMenu();
+            navigateTo(url);
+        }
+    });
+
+    // Delegación de eventos para atrapar el submit del buscador
+    document.body.addEventListener('submit', (e) => {
+        const form = e.target.closest('form');
+        if (form && form.method.toUpperCase() === 'GET' && form.classList.contains('search-bar')) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const searchParams = new URLSearchParams(formData).toString();
+            const url = `${form.action}?${searchParams}`;
+            navigateTo(url);
+        }
+    });
+
+    // Manejar el botón "Atrás/Adelante" del navegador
+    window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.path) {
+            navigateTo(e.state.path, false);
+        } else {
+            navigateTo(window.location.href, false);
+        }
     });
 </script>
