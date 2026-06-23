@@ -13,8 +13,13 @@
             class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
             <i class="fa-solid fa-gauge"></i> Dashboard
         </a>
-        <a href="{% url 'admin_dashboard' %}?q=" class="nav-link">
+        <a href="{% url 'gestion_usuarios' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'gestion_usuarios' %}active{% endif %}">
             <i class="fa-solid fa-users"></i> Usuarios
+        </a>
+        <a href="{% url 'logs_auditoria' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'logs_auditoria' %}active{% endif %}">
+            <i class="fa-solid fa-list-check"></i> Logs
         </a>
         {% elif user.rol == 'APRENDIZ' %}
         <a href="{% url 'apprentice_dashboard' %}"

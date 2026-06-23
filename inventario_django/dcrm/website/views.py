@@ -161,6 +161,12 @@ def logout_user(request):
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
 def admin_dashboard(request):
+    return render(request, 'admin_dashboard.html')
+
+
+@login_required(login_url='login')
+@user_passes_test(es_administrador, login_url='login')
+def gestion_usuarios(request):
     users = Usuario.objects.all().order_by('date_joined')
     query = sanitizar(request.GET.get('q', ''))
     if query:
@@ -169,12 +175,19 @@ def admin_dashboard(request):
     paginator = Paginator(users, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    logs = LogAuditoria.objects.all().order_by('-fecha')[:10]
 
-    return render(request, 'admin_dashboard.html', {
+    return render(request, 'gestion_usuarios.html', {
         'users': page_obj,
         'page_obj': page_obj,
         'query': query,
+    })
+
+
+@login_required(login_url='login')
+@user_passes_test(es_administrador, login_url='login')
+def logs_auditoria(request):
+    logs = LogAuditoria.objects.all().order_by('-fecha')[:50]
+    return render(request, 'logs_auditoria.html', {
         'logs': logs,
     })
 
