@@ -23,7 +23,12 @@
 
     <div class="dash-container">
         <!-- Logs de auditoría -->
-        <h2 style="margin-bottom: 20px;">Registro de Actividad</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Registro de Actividad</h2>
+            <a href="{% url 'export_logs_excel' %}" class="btn-primary" style="width: auto; padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-file-excel"></i> Exportar Excel
+            </a>
+        </div>
         <table>
             <thead>
                 <tr>

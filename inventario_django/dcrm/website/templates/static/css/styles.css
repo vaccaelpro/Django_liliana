@@ -421,29 +421,45 @@ body:not(.page-auth) {
 
 table {
     width: 100%;
-    background: var(--panel-dark);
+    background: rgba(22, 42, 36, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text-light);
-    border-collapse: collapse;
-    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 th,
 td {
-    padding: 15px 20px;
+    padding: 18px 24px;
     text-align: left;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 th {
-    background-color: #202428;
+    background: rgba(0, 0, 0, 0.2);
     color: var(--primary);
     font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+tr {
+    transition: all 0.3s ease;
+}
+
+tr:last-child td {
+    border-bottom: none;
 }
 
 tr:hover {
-    background-color: #353b42;
+    background-color: rgba(46, 139, 87, 0.1);
+    transform: scale(1.005);
 }
 
 .btn-action {

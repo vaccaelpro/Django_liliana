@@ -1,5 +1,8 @@
 import re
 import html
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -190,6 +193,94 @@ def logs_auditoria(request):
     return render(request, 'logs_auditoria.html', {
         'logs': logs,
     })
+
+
+@login_required(login_url='login')
+@user_passes_test(es_administrador, login_url='login')
+def export_users_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Usuarios"
+
+    # Definir estilos
+    header_font = Font(name='Calibri', bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color="2E8B57", end_color="2E8B57", fill_type="solid") # SENA Green
+    alignment = Alignment(horizontal='center', vertical='center')
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    headers = ['Documento', 'Nombres', 'Apellidos', 'Correo', 'Rol', 'Fecha Registro']
+    ws.append(headers)
+
+    # Aplicar estilos a las cabeceras
+    for col_num, cell in enumerate(ws[1], 1):
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = alignment
+        cell.border = thin_border
+        # Ajustar ancho de columna aproximado
+        ws.column_dimensions[openpyxl.utils.get_column_letter(col_num)].width = 25
+
+    users = Usuario.objects.all().order_by('date_joined')
+    for row_num, u in enumerate(users, 2):
+        row = [
+            u.documento, u.first_name, u.last_name, u.email, 
+            u.get_rol_display(), u.date_joined.strftime("%Y-%m-%d %H:%M")
+        ]
+        ws.append(row)
+        for col_num, cell in enumerate(ws[row_num], 1):
+            cell.alignment = Alignment(horizontal='left', vertical='center')
+            cell.border = thin_border
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="usuarios.xlsx"'
+    wb.save(response)
+    
+    registrar_log(request.user, 'REPORTE', 'Exportó listado de usuarios a Excel', request)
+    return response
+
+
+@login_required(login_url='login')
+@user_passes_test(es_administrador, login_url='login')
+def export_logs_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Logs de Auditoría"
+
+    # Definir estilos
+    header_font = Font(name='Calibri', bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color="2E8B57", end_color="2E8B57", fill_type="solid")
+    alignment = Alignment(horizontal='center', vertical='center')
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    headers = ['Fecha', 'Usuario', 'Acción', 'Detalle', 'IP']
+    ws.append(headers)
+
+    for col_num, cell in enumerate(ws[1], 1):
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = alignment
+        cell.border = thin_border
+        ws.column_dimensions[openpyxl.utils.get_column_letter(col_num)].width = 25
+    ws.column_dimensions['D'].width = 50 # Detalle más ancho
+
+    logs = LogAuditoria.objects.all().order_by('-fecha')
+    for row_num, log in enumerate(logs, 2):
+        usuario_str = log.usuario.first_name if log.usuario else "—"
+        row = [
+            log.fecha.strftime("%Y-%m-%d %H:%M"), usuario_str, 
+            log.get_accion_display(), log.detalle, log.ip
+        ]
+        ws.append(row)
+        for col_num, cell in enumerate(ws[row_num], 1):
+            cell.alignment = Alignment(horizontal='left', vertical='center')
+            cell.border = thin_border
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="logs_auditoria.xlsx"'
+    wb.save(response)
+    
+    registrar_log(request.user, 'REPORTE', 'Exportó logs de auditoría a Excel', request)
+    return response
 
 
 @login_required(login_url='login')

@@ -22,7 +22,12 @@
     {% endif %}
 
     <div class="dash-container">
-        <h2>Gestión de Usuarios</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Gestión de Usuarios</h2>
+            <a href="{% url 'export_users_excel' %}" class="btn-primary" style="width: auto; padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-file-excel"></i> Exportar Excel
+            </a>
+        </div>
         <form class="search-bar" method="GET" action="{% url 'gestion_usuarios' %}">
             <input type="text" name="q" placeholder="Buscar por documento o nombre..." value="{{ request.GET.q }}">
             <div class="search-actions">
