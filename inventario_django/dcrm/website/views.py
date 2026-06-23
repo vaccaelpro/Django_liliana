@@ -257,6 +257,34 @@ def edit_user(request, user_id):
 
     return render(request, 'edit_user.html', {'user_to_edit': user_to_edit})
 
+@login_required(login_url='login')
+@user_passes_test(es_aprendiz, login_url='login')
+def cambiar_password_aprendiz(request):
+    if request.method == 'POST':
+        password_actual  = request.POST.get('password_actual', '')
+        password_nueva   = request.POST.get('password_nueva', '')
+        password_confirma = request.POST.get('password_confirma', '')
+
+        if not request.user.check_password(password_actual):
+            messages.error(request, "La contraseña actual es incorrecta.")
+            return redirect('apprentice_dashboard')
+
+        if not REGEX_PASSWORD.match(password_nueva):
+            messages.error(request, "La nueva contraseña debe tener mínimo 8 caracteres, una mayúscula y un número.")
+            return redirect('apprentice_dashboard')
+
+        if password_nueva != password_confirma:
+            messages.error(request, "Las contraseñas nuevas no coinciden.")
+            return redirect('apprentice_dashboard')
+
+        request.user.set_password(password_nueva)
+        request.user.save()
+        registrar_log(request.user, 'CAMBIO_PASSWORD', 'Aprendiz cambió su contraseña', request)
+        messages.success(request, "Contraseña actualizada correctamente. Inicia sesión de nuevo.")
+        return redirect('login')
+
+    return redirect('apprentice_dashboard')
+
 
 # ============================================================
 # ERRORES PERSONALIZADOS

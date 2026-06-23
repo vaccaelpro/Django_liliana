@@ -12,6 +12,7 @@
 
 <body>
     {% include 'navbar.html' %}
+
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
@@ -25,6 +26,74 @@
             <h2>Bienvenido(a), {{ request.user.first_name|default:request.user.documento }}!</h2>
             <p>Este es tu tablero principal. Mantente al día con las últimas novedades del SENA.</p>
         </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+
+            <!-- TARJETA PERFIL -->
+            <div class="novedad-card" style="padding: 24px;">
+                <div class="novedad-title" style="font-size:1.1rem; margin-bottom:16px;">👤 Mi Perfil</div>
+                <table style="width:100%; border-collapse:collapse; font-size:0.95rem;">
+                    <tr>
+                        <td style="padding:6px 0; color:#6c757d; width:40%;">Nombres</td>
+                        <td style="padding:6px 0;"><strong>{{ request.user.first_name }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#6c757d;">Apellidos</td>
+                        <td style="padding:6px 0;"><strong>{{ request.user.last_name }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#6c757d;">Documento</td>
+                        <td style="padding:6px 0;"><strong>{{ request.user.documento }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#6c757d;">Correo</td>
+                        <td style="padding:6px 0;"><strong>{{ request.user.email }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#6c757d;">Rol</td>
+                        <td style="padding:6px 0;"><strong>{{ request.user.rol }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#6c757d;">Miembro desde</td>
+                        <td style="padding:6px 0;"><strong>{{ request.user.date_joined|date:"d/m/Y" }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- TARJETA CAMBIAR CONTRASEÑA -->
+            <div class="novedad-card" style="padding: 24px;">
+                <div class="novedad-title" style="font-size:1.1rem; margin-bottom:16px;">🔒 Cambiar Contraseña</div>
+                <form method="POST" action="{% url 'cambiar_password_aprendiz' %}">
+                    {% csrf_token %}
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-size:0.85rem; color:#6c757d; margin-bottom:4px;">Contraseña
+                            actual</label>
+                        <input type="password" name="password_actual" required
+                            style="width:100%; padding:8px 12px; border:1px solid #ced4da; border-radius:6px; font-size:0.9rem;">
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-size:0.85rem; color:#6c757d; margin-bottom:4px;">Nueva
+                            contraseña</label>
+                        <input type="password" name="password_nueva" required
+                            style="width:100%; padding:8px 12px; border:1px solid #ced4da; border-radius:6px; font-size:0.9rem;">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block; font-size:0.85rem; color:#6c757d; margin-bottom:4px;">Confirmar
+                            nueva contraseña</label>
+                        <input type="password" name="password_confirma" required
+                            style="width:100%; padding:8px 12px; border:1px solid #ced4da; border-radius:6px; font-size:0.9rem;">
+                    </div>
+                    <small style="color:#6c757d; display:block; margin-bottom:12px;">Mínimo 8 caracteres, una mayúscula
+                        y un número.</small>
+                    <button type="submit"
+                        style="background:#39A900; color:#fff; border:none; padding:9px 20px; border-radius:6px; cursor:pointer; font-size:0.9rem; width:100%;">
+                        Actualizar contraseña
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- NOVEDADES -->
         <h3 style="margin-bottom: 20px; font-size: 1.4rem;">Novedades y Anuncios Recientes</h3>
         <div class="novedades-grid">
             <div class="novedad-card">
