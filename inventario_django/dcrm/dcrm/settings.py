@@ -24,6 +24,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'website.middleware.RateLimitMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -99,3 +100,17 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'website.Usuario'
+
+# ============================================================
+# CAPA 4 — Security Headers
+# ============================================================
+SECURE_CONTENT_TYPE_NOSNIFF = True       # Evita MIME-type sniffing
+SECURE_BROWSER_XSS_FILTER = True         # Activa filtro XSS del navegador
+X_FRAME_OPTIONS = 'DENY'                 # Bloquea iframes (clickjacking)
+SECURE_REFERRER_POLICY = 'same-origin'   # Controla header Referrer
+
+# En producción con HTTPS activar también:
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_HSTS_SECONDS = 31536000

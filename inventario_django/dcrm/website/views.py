@@ -1,4 +1,5 @@
 import re
+import html
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -7,11 +8,23 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from .models import Usuario, LogAuditoria
 
+# ============================================================
+# CAPA 3 — Sanitización de inputs (html.escape)
+# ============================================================
+def sanitizar(valor):
+    """
+    Capa 3 - Sanitización: elimina caracteres HTML peligrosos del input.
+    Previene XSS al escapar <, >, &, ', " antes de procesar cualquier dato.
+    """
+    return html.escape(str(valor).strip()) if valor else ''
+
+
 # --- PATRONES DE VALIDACIÓN ---
 REGEX_DOCUMENTO = re.compile(r'^\d{5,12}$')
 REGEX_NOMBRES   = re.compile(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}$')
 REGEX_EMAIL     = re.compile(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$')
 REGEX_PASSWORD  = re.compile(r'^(?=.*[A-Z])(?=.*\d).{8,}$')
+
 
 # --- HELPERS ---
 def es_administrador(user):
@@ -21,6 +34,7 @@ def es_aprendiz(user):
     return user.is_authenticated and user.rol == 'APRENDIZ'
 
 def registrar_log(usuario, accion, detalle, request):
+    """Registra acciones de auditoría con IP del cliente."""
     ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
     if ',' in ip:
         ip = ip.split(',')[0].strip()
@@ -31,10 +45,19 @@ def registrar_log(usuario, accion, detalle, request):
         ip=ip
     )
 
-# --- VISTAS DE ACCESO ---
+def get_ip(request):
+    """Extrae la IP real del cliente, considerando proxies."""
+    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'unknown'))
+    return ip.split(',')[0].strip() if ',' in ip else ip
+
+
+# ============================================================
+# VISTAS DE ACCESO
+# ============================================================
 
 def home(request):
     return redirect('login')
+
 
 def login_user(request):
     if request.user.is_authenticated:
@@ -43,7 +66,8 @@ def login_user(request):
         return redirect('apprentice_dashboard')
 
     if request.method == 'POST':
-        documento = request.POST.get('documento', '').strip()
+        # Capa 3: sanitizar antes de validar
+        documento = sanitizar(request.POST.get('documento', ''))
         password  = request.POST.get('password', '')
 
         if not REGEX_DOCUMENTO.match(documento):
@@ -75,10 +99,11 @@ def login_user(request):
 
 @require_POST
 def register_user(request):
-    nombres   = request.POST.get('nombres', '').strip()
-    apellidos = request.POST.get('apellidos', '').strip()
-    email     = request.POST.get('email', '').strip()
-    documento = request.POST.get('documento', '').strip()
+    # Capa 3: sanitizar todos los campos de texto
+    nombres   = sanitizar(request.POST.get('nombres', ''))
+    apellidos = sanitizar(request.POST.get('apellidos', ''))
+    email     = sanitizar(request.POST.get('email', ''))
+    documento = sanitizar(request.POST.get('documento', ''))
     rol       = request.POST.get('rol', '')
     password  = request.POST.get('password', '')
 
@@ -129,20 +154,22 @@ def logout_user(request):
     return redirect('login')
 
 
-# --- DASHBOARDS ---
+# ============================================================
+# DASHBOARDS
+# ============================================================
 
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
 def admin_dashboard(request):
     users = Usuario.objects.all().order_by('date_joined')
-    query = request.GET.get('q', '').strip()
+    query = sanitizar(request.GET.get('q', ''))
     if query:
         users = users.filter(first_name__icontains=query) | users.filter(documento__icontains=query)
 
     paginator = Paginator(users, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    logs = LogAuditoria.objects.all()[:10]
+    logs = LogAuditoria.objects.all().order_by('-fecha')[:10]
 
     return render(request, 'admin_dashboard.html', {
         'users': page_obj,
@@ -158,7 +185,9 @@ def apprentice_dashboard(request):
     return render(request, 'apprentice_dashboard.html')
 
 
-# --- CRUD ---
+# ============================================================
+# CRUD
+# ============================================================
 
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
@@ -181,10 +210,11 @@ def edit_user(request, user_id):
     user_to_edit = get_object_or_404(Usuario, id=user_id)
 
     if request.method == 'POST':
-        nombres      = request.POST.get('nombres', '').strip()
-        apellidos    = request.POST.get('apellidos', '').strip()
-        email        = request.POST.get('email', '').strip()
-        documento    = request.POST.get('documento', '').strip()
+        # Capa 3: sanitizar todos los campos de texto
+        nombres      = sanitizar(request.POST.get('nombres', ''))
+        apellidos    = sanitizar(request.POST.get('apellidos', ''))
+        email        = sanitizar(request.POST.get('email', ''))
+        documento    = sanitizar(request.POST.get('documento', ''))
         rol          = request.POST.get('rol', '')
         new_password = request.POST.get('password', '')
 
@@ -228,7 +258,9 @@ def edit_user(request, user_id):
     return render(request, 'edit_user.html', {'user_to_edit': user_to_edit})
 
 
-# --- ERRORES ---
+# ============================================================
+# ERRORES PERSONALIZADOS
+# ============================================================
 
 def error_404(request, exception):
     return render(request, '404.html', status=404)
