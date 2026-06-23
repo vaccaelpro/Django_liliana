@@ -1,35 +1,39 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENA - Editar Usuario</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/edit_user.css' %}">
 </head>
+
 <body>
     <header class="dash-header">
         <h1>Editar Usuario</h1>
-        <a href="{% url 'admin_dashboard' %}" class="btn-logout" style="background-color: #6c757d;">Volver al Dashboard</a>
+        <a href="{% url 'admin_dashboard' %}" class="btn-logout" style="background-color: #6c757d;">Volver al
+            Dashboard</a>
     </header>
 
     <div class="dash-container">
 
         <div class="edit-form-container">
-            <h2 style="text-align: center; margin-bottom: 30px;">Modificar datos de <span style="color:var(--accent);">{{ user_to_edit.first_name }}</span></h2>
-            
-            <form action="{% url 'edit_user' user_to_edit.id %}" method="POST" style="display:flex; flex-direction:column; align-items:flex-start;">
+            <h2 style="text-align: center; margin-bottom: 30px;">Modificar datos de <span
+                    style="color:var(--accent);">{{ user_to_edit.first_name }}</span></h2>
+
+            <form action="{% url 'edit_user' user_to_edit.id %}" method="POST"
+                style="display:flex; flex-direction:column; align-items:flex-start;">
                 {% csrf_token %}
-                
+
                 <label class="form-label">Nombres</label>
                 <div class="input-group" style="margin-bottom: 20px;">
                     <i class="fa-solid fa-user"></i>
                     <input type="text" name="nombres" value="{{ user_to_edit.first_name }}" required />
                 </div>
-                
+
                 <label class="form-label">Apellidos</label>
                 <div class="input-group" style="margin-bottom: 20px;">
                     <i class="fa-solid fa-user"></i>
@@ -52,8 +56,10 @@
                 <div class="input-group" style="margin-bottom: 20px;">
                     <i class="fa-solid fa-users"></i>
                     <select style="padding-left: 40px;" name="rol" required>
-                        <option value="ADMINISTRADOR" {% if user_to_edit.rol == 'ADMINISTRADOR' %}selected{% endif %}>Administrador</option>
-                        <option value="APRENDIZ" {% if user_to_edit.rol == 'APRENDIZ' %}selected{% endif %}>Aprendiz</option>
+                        <option value="ADMINISTRADOR" {% if user_to_edit.rol=='ADMINISTRADOR' %}selected{% endif %}>
+                            Administrador</option>
+                        <option value="APRENDIZ" {% if user_to_edit.rol=='APRENDIZ' %}selected{% endif %}>Aprendiz
+                        </option>
                     </select>
                 </div>
 
@@ -68,4 +74,5 @@
         </div>
     </div>
 </body>
+
 </html>
