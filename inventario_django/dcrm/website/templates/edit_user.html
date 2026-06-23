@@ -14,62 +14,112 @@
 <body>
     <header class="dash-header">
         <h1>Editar Usuario</h1>
-        <a href="{% url 'admin_dashboard' %}" class="btn-logout" style="background-color: #6c757d;">Volver al
+        <a href="{% url 'admin_dashboard' %}" class="btn-logout" style="background-color: #6c757d;">← Volver al
             Dashboard</a>
     </header>
 
-    <div class="dash-container">
+    {% if messages %}
+    <div style="max-width:680px; margin: 16px auto 0; padding: 0 20px;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" style="margin-bottom:8px;">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
+    <div class="dash-container">
         <div class="edit-form-container">
-            <h2 style="text-align: center; margin-bottom: 30px;">Modificar datos de <span
-                    style="color:var(--accent);">{{ user_to_edit.first_name }}</span></h2>
+
+            <div style="text-align:center; margin-bottom:28px;">
+                <div
+                    style="width:64px; height:64px; border-radius:50%; background:#e8f5e9; display:flex; align-items:center; justify-content:center; margin:0 auto 12px;">
+                    <span style="font-size:1.8rem;">👤</span>
+                </div>
+                <h2 style="margin:0 0 6px;">Modificar datos de <span
+                        style="color:var(--accent);">{{user_to_edit.first_name }}</span></h2>
+                {% if es_admin %}
+                <span
+                    style="display:inline-block; background:#fff3cd; color:#856404; padding:3px 12px; border-radius:20px; font-size:0.8rem; font-weight:600;">ADMINISTRADOR</span>
+                {% else %}
+                <span
+                    style="display:inline-block; background:#d1ecf1; color:#0c5460; padding:3px 12px; border-radius:20px; font-size:0.8rem; font-weight:600;">APRENDIZ</span>
+                {% endif %}
+            </div>
 
             <form action="{% url 'edit_user' user_to_edit.id %}" method="POST"
                 style="display:flex; flex-direction:column; align-items:flex-start;">
                 {% csrf_token %}
 
-                <label class="form-label">Nombres</label>
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <i class="fa-solid fa-user"></i>
-                    <input type="text" name="nombres" value="{{ user_to_edit.first_name }}" required />
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; margin-bottom:20px;">
+                    <div>
+                        <label class="form-label">Nombres</label>
+                        <div class="input-group">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" name="nombres" value="{{ user_to_edit.first_name }}"
+                                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}" title="Solo letras y espacios (2–50 caracteres)"
+                                required />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Apellidos</label>
+                        <div class="input-group">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" name="apellidos" value="{{ user_to_edit.last_name }}"
+                                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}" title="Solo letras y espacios (2–50 caracteres)"
+                                required />
+                        </div>
+                    </div>
                 </div>
 
-                <label class="form-label">Apellidos</label>
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <i class="fa-solid fa-user"></i>
-                    <input type="text" name="apellidos" value="{{ user_to_edit.last_name }}" required />
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; margin-bottom:20px;">
+                    <div>
+                        <label class="form-label">Correo electrónico</label>
+                        <div class="input-group">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" name="email" value="{{ user_to_edit.email }}" required />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Número de documento</label>
+                        <div class="input-group">
+                            <i class="fa-solid fa-id-card"></i>
+                            <input type="text" name="documento" value="{{ user_to_edit.documento }}" pattern="\d{5,12}"
+                                title="Entre 5 y 12 dígitos numéricos" required />
+                        </div>
+                    </div>
                 </div>
 
-                <label class="form-label">Correo electrónico</label>
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <i class="fa-solid fa-envelope"></i>
-                    <input type="email" name="email" value="{{ user_to_edit.email }}" required />
+                <div style="width:100%; margin-bottom:20px;">
+                    <label class="form-label">Rol del usuario</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-users"></i>
+                        <select style="padding-left:40px;" name="rol" required>
+                            <option value="ADMINISTRADOR" {% if es_admin %}selected{% endif %}>Administrador</option>
+                            <option value="APRENDIZ" {% if not es_admin %}selected{% endif %}>Aprendiz</option>
+                        </select>
+                    </div>
                 </div>
 
-                <label class="form-label">Número de documento</label>
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <i class="fa-solid fa-id-card"></i>
-                    <input type="text" name="documento" value="{{ user_to_edit.documento }}" required />
+                <div style="width:100%; margin-bottom:8px;">
+                    <label class="form-label">Nueva contraseña</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" placeholder="Déjalo vacío para no cambiarla"
+                            pattern="(?=.*[A-Z])(?=.*\d).{8,}" title="Mínimo 8 caracteres, una mayúscula y un número" />
+                    </div>
                 </div>
+                <small style="color:#6c757d; margin-bottom:28px; display:block;">
+                    Mínimo 8 caracteres, al menos una mayúscula y un número.
+                </small>
 
-                <label class="form-label">Rol del usuario</label>
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <i class="fa-solid fa-users"></i>
-                    <select style="padding-left: 40px;" name="rol" required>
-                        <option value="ADMINISTRADOR" {% if user_to_edit.rol=='ADMINISTRADOR' %}selected{% endif %}>
-                            Administrador</option>
-                        <option value="APRENDIZ" {% if user_to_edit.rol=='APRENDIZ' %}selected{% endif %}>Aprendiz
-                        </option>
-                    </select>
+                <div style="display:flex; gap:12px; width:100%;">
+                    <button type="submit" class="btn-primary" style="flex:1; padding:14px; font-size:15px;">
+                        💾 Guardar Cambios
+                    </button>
+                    <a href="{% url 'admin_dashboard' %}" class="btn-logout"
+                        style="flex:0.4; padding:14px; text-align:center; font-size:15px; background:#6c757d; text-decoration:none;">
+                        Cancelar
+                    </a>
                 </div>
-
-                <label class="form-label">Nueva contraseña (Déjalo vacío para no cambiarla)</label>
-                <div class="input-group" style="margin-bottom: 30px;">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" name="password" placeholder="Min. 8 caracteres..." />
-                </div>
-
-                <button type="submit" class="btn-primary" style="padding:15px; font-size:15px;">Guardar Cambios</button>
             </form>
         </div>
     </div>

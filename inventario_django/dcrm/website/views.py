@@ -210,7 +210,6 @@ def edit_user(request, user_id):
     user_to_edit = get_object_or_404(Usuario, id=user_id)
 
     if request.method == 'POST':
-        # Capa 3: sanitizar todos los campos de texto
         nombres      = sanitizar(request.POST.get('nombres', ''))
         apellidos    = sanitizar(request.POST.get('apellidos', ''))
         email        = sanitizar(request.POST.get('email', ''))
@@ -239,7 +238,10 @@ def edit_user(request, user_id):
         if errores:
             for msg in errores.values():
                 messages.error(request, msg)
-            return render(request, 'edit_user.html', {'user_to_edit': user_to_edit})
+            return render(request, 'edit_user.html', {
+                'user_to_edit': user_to_edit,
+                'es_admin': user_to_edit.rol == 'ADMINISTRADOR',
+            })
 
         user_to_edit.first_name = nombres
         user_to_edit.last_name  = apellidos
@@ -255,7 +257,10 @@ def edit_user(request, user_id):
         messages.success(request, f"Datos de {user_to_edit.first_name} actualizados correctamente.")
         return redirect('admin_dashboard')
 
-    return render(request, 'edit_user.html', {'user_to_edit': user_to_edit})
+    return render(request, 'edit_user.html', {
+        'user_to_edit': user_to_edit,
+        'es_admin': user_to_edit.rol == 'ADMINISTRADOR',
+    })
 
 @login_required(login_url='login')
 @user_passes_test(es_aprendiz, login_url='login')
