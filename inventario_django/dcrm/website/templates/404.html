@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENA - Página no encontrada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background: radial-gradient(circle at center, #1a2e26 0%, var(--bg-dark) 80%);
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 10px;
+            text-shadow: 0 0 40px rgba(46, 139, 87, 0.4);
+        }
+
+        .error-title {
+            font-size: 1.8rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .error-desc {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 35px;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        .error-btn {
+            padding: 14px 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .error-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-page">
+        <div class="error-code">404</div>
+        <h1 class="error-title">Página no encontrada</h1>
+        <p class="error-desc">La página que buscas no existe o fue movida. Verifica la URL o regresa al inicio.</p>
+        <a href="{% url 'login' %}" class="error-btn">← Volver al inicio</a>
+    </div>
+</body>
+
+</html>
