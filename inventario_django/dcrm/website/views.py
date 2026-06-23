@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from django.contrib import messages
+from django.core.paginator import Paginator
 from .models import Usuario
 
 # --- PATRONES DE VALIDACIÓN ---
@@ -129,11 +130,24 @@ def logout_user(request):
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
 def admin_dashboard(request):
-    users = Usuario.objects.all()
+    if not request.user.is_authenticated or request.user.rol != 'ADMINISTRADOR':
+        messages.error(request, "Acceso denegado. Se requiere rol de Administrador.")
+        return redirect('login')
+
+    users = Usuario.objects.all().order_by('date_joined')
     query = request.GET.get('q', '').strip()
     if query:
         users = users.filter(first_name__icontains=query) | users.filter(documento__icontains=query)
-    return render(request, 'admin_dashboard.html', {'users': users, 'query': query})
+
+    paginator = Paginator(users, 5)  # 5 usuarios por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'admin_dashboard.html', {
+        'users': page_obj,
+        'page_obj': page_obj,
+        'query': query,
+    })
 
 
 @login_required(login_url='login')

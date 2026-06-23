@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
 </head>
 
 <body>
@@ -24,9 +25,10 @@
         <h2>Gestión de Usuarios</h2>
         <form class="search-bar" method="GET" action="{% url 'admin_dashboard' %}">
             <input type="text" name="q" placeholder="Buscar por documento o nombre..." value="{{ request.GET.q }}">
-            <button type="submit">Buscar</button>
-            <a href="{% url 'admin_dashboard' %}"
-                style="text-decoration: none; align-self: center; color: var(--accent); font-weight: bold; margin-left: 10px;">Limpiar</a>
+            <div class="search-actions">
+                <button type="submit">Buscar</button>
+                <a href="{% url 'admin_dashboard' %}" class="search-clear">Limpiar</a>
+            </div>
         </form>
         <table>
             <thead>
@@ -71,6 +73,35 @@
                 {% endfor %}
             </tbody>
         </table>
+        <!-- Paginación -->
+        <div class="pagination">
+            <span class="pagination-info">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                &nbsp;|&nbsp; Total: {{ page_obj.paginator.count }} usuarios
+            </span>
+            <div class="pagination-links">
+                {% if page_obj.has_previous %}
+                <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="page-btn">« Primera</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
+                    class="page-btn">‹ Anterior</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="page-btn page-active">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <a
+                    href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
+                        class="page-btn">Siguiente ›</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}"
+                        class="page-btn">Última »</a>
+                    {% endif %}
+            </div>
+        </div>
     </div>
 </body>
 

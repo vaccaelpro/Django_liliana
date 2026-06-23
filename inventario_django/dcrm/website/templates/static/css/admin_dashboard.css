@@ -1,0 +1,111 @@
+/* Search bar centrada */
+.search-bar {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.search-bar input {
+    width: 500px;
+    max-width: 100%;
+    padding: 14px 20px;
+    border-radius: 12px;
+    background: #1a2e26;
+    border: 1px solid #2a4a3a;
+    color: #f0f7f4;
+    font-size: 14px;
+}
+
+.search-bar input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.2);
+    outline: none;
+}
+
+.search-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.search-bar button {
+    padding: 10px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.search-clear {
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid #444;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.search-clear:hover {
+    background: rgba(218, 165, 32, 0.1);
+    border-color: var(--accent);
+}
+
+/* Paginación mejorada */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding: 16px 24px;
+    background: #162a24;
+    border-radius: 12px;
+    border: 1px solid #2a4a3a;
+}
+
+.pagination-info {
+    color: #8fb1a3;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.pagination-links {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.page-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #1a2e26;
+    color: #8fb1a3;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #2a4a3a;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.page-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+}
+
+.page-active {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 4px 12px rgba(46, 139, 87, 0.4);
+    cursor: default;
+}
+
+.page-active:hover {
+    transform: none;
+}
