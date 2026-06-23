@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENA - Admin Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 
 <body>
@@ -20,6 +20,7 @@
         {% endfor %}
     </div>
     {% endif %}
+
     <div class="dash-container">
         <h2>Gestión de Usuarios</h2>
         <form class="search-bar" method="GET" action="{% url 'admin_dashboard' %}">
@@ -29,6 +30,7 @@
                 <a href="{% url 'admin_dashboard' %}" class="search-clear">Limpiar</a>
             </div>
         </form>
+
         <table>
             <thead>
                 <tr>
@@ -72,6 +74,7 @@
                 {% endfor %}
             </tbody>
         </table>
+
         <!-- Paginación -->
         <div class="pagination">
             <span class="pagination-info">
@@ -84,7 +87,6 @@
                 <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"
                     class="page-btn">‹ Anterior</a>
                 {% endif %}
-
                 {% for num in page_obj.paginator.page_range %}
                 {% if page_obj.number == num %}
                 <span class="page-btn page-active">{{ num }}</span>
@@ -92,7 +94,6 @@
                     href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">{{ num }}</a>
                     {% endif %}
                     {% endfor %}
-
                     {% if page_obj.has_next %}
                     <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"
                         class="page-btn">Siguiente ›</a>
@@ -101,6 +102,39 @@
                     {% endif %}
             </div>
         </div>
+
+        <!-- Logs de auditoría -->
+        <h2 style="margin-top: 40px; margin-bottom: 20px;">Registro de Actividad</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Detalle</th>
+                    <th>IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>{{ log.usuario.first_name|default:"—" }}</td>
+                    <td>
+                        <span class="log-badge log-{{ log.accion|lower }}">
+                            {{ log.get_accion_display }}
+                        </span>
+                    </td>
+                    <td>{{ log.detalle }}</td>
+                    <td>{{ log.ip }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:20px;">Sin actividad registrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </body>
 

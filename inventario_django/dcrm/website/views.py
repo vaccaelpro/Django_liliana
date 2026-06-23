@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .models import Usuario
+from .models import Usuario, LogAuditoria
 
 # --- PATRONES DE VALIDACIÓN ---
 REGEX_DOCUMENTO = re.compile(r'^\d{5,12}$')
@@ -13,19 +13,28 @@ REGEX_NOMBRES   = re.compile(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}$')
 REGEX_EMAIL     = re.compile(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$')
 REGEX_PASSWORD  = re.compile(r'^(?=.*[A-Z])(?=.*\d).{8,}$')
 
-# --- HELPERS DE ROL ---
+# --- HELPERS ---
 def es_administrador(user):
     return user.is_authenticated and user.rol == 'ADMINISTRADOR'
 
 def es_aprendiz(user):
     return user.is_authenticated and user.rol == 'APRENDIZ'
 
+def registrar_log(usuario, accion, detalle, request):
+    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    if ',' in ip:
+        ip = ip.split(',')[0].strip()
+    LogAuditoria.objects.create(
+        usuario=usuario,
+        accion=accion,
+        detalle=detalle,
+        ip=ip
+    )
 
 # --- VISTAS DE ACCESO ---
 
 def home(request):
     return redirect('login')
-
 
 def login_user(request):
     if request.user.is_authenticated:
@@ -51,6 +60,7 @@ def login_user(request):
 
             if user is not None:
                 login(request, user)
+                registrar_log(user, 'LOGIN', f'Inicio de sesión: {user.documento}', request)
                 messages.success(request, f"¡Bienvenido, {user.first_name or user.documento}!")
                 if user.rol == 'ADMINISTRADOR':
                     return redirect('admin_dashboard')
@@ -65,7 +75,6 @@ def login_user(request):
 
 @require_POST
 def register_user(request):
-    """Solo acepta POST. Rechaza cualquier acceso GET directo a esta ruta."""
     nombres   = request.POST.get('nombres', '').strip()
     apellidos = request.POST.get('apellidos', '').strip()
     email     = request.POST.get('email', '').strip()
@@ -76,37 +85,29 @@ def register_user(request):
     if not REGEX_NOMBRES.match(nombres):
         messages.error(request, "Los nombres solo deben contener letras y espacios (2–50 caracteres).")
         return redirect('login')
-
     if not REGEX_NOMBRES.match(apellidos):
         messages.error(request, "Los apellidos solo deben contener letras y espacios (2–50 caracteres).")
         return redirect('login')
-
     if not REGEX_EMAIL.match(email):
         messages.error(request, "El correo electrónico no tiene un formato válido.")
         return redirect('login')
-
     if not REGEX_DOCUMENTO.match(documento):
         messages.error(request, "El documento debe contener entre 5 y 12 dígitos numéricos.")
         return redirect('login')
-
     if not REGEX_PASSWORD.match(password):
         messages.error(request, "La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número.")
         return redirect('login')
-
-    # Validación estricta del rol (evita manipulación del formulario)
     if rol not in ('ADMINISTRADOR', 'APRENDIZ'):
         messages.error(request, "El rol seleccionado no es válido.")
         return redirect('login')
-
     if Usuario.objects.filter(documento=documento).exists():
         messages.error(request, "Ya existe un usuario con ese número de documento.")
         return redirect('login')
-
     if Usuario.objects.filter(email=email).exists():
         messages.error(request, "Ya existe una cuenta registrada con ese correo electrónico.")
         return redirect('login')
 
-    Usuario.objects.create_user(
+    nuevo_usuario = Usuario.objects.create_user(
         username=documento,
         password=password,
         first_name=nombres,
@@ -115,11 +116,14 @@ def register_user(request):
         documento=documento,
         rol=rol,
     )
+    registrar_log(nuevo_usuario, 'REGISTRO', f'Nuevo usuario registrado: {documento}', request)
     messages.success(request, "Cuenta creada exitosamente. Ahora puedes iniciar sesión.")
     return redirect('login')
 
 
 def logout_user(request):
+    if request.user.is_authenticated:
+        registrar_log(request.user, 'LOGOUT', f'Cierre de sesión: {request.user.documento}', request)
     logout(request)
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect('login')
@@ -130,23 +134,21 @@ def logout_user(request):
 @login_required(login_url='login')
 @user_passes_test(es_administrador, login_url='login')
 def admin_dashboard(request):
-    if not request.user.is_authenticated or request.user.rol != 'ADMINISTRADOR':
-        messages.error(request, "Acceso denegado. Se requiere rol de Administrador.")
-        return redirect('login')
-
     users = Usuario.objects.all().order_by('date_joined')
     query = request.GET.get('q', '').strip()
     if query:
         users = users.filter(first_name__icontains=query) | users.filter(documento__icontains=query)
 
-    paginator = Paginator(users, 5)  # 5 usuarios por página
+    paginator = Paginator(users, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    logs = LogAuditoria.objects.all()[:10]
 
     return render(request, 'admin_dashboard.html', {
         'users': page_obj,
         'page_obj': page_obj,
         'query': query,
+        'logs': logs,
     })
 
 
@@ -167,6 +169,7 @@ def user_delete(request, user_id):
         return redirect('admin_dashboard')
 
     user = get_object_or_404(Usuario, id=user_id)
+    registrar_log(request.user, 'ELIMINACION', f'Usuario eliminado: {user.documento} - {user.first_name}', request)
     user.delete()
     messages.success(request, "Usuario eliminado correctamente.")
     return redirect('admin_dashboard')
@@ -186,7 +189,6 @@ def edit_user(request, user_id):
         new_password = request.POST.get('password', '')
 
         errores = {}
-
         if not REGEX_NOMBRES.match(nombres):
             errores['nombres'] = "Solo letras y espacios (2–50 caracteres)."
         if not REGEX_NOMBRES.match(apellidos):
@@ -218,11 +220,15 @@ def edit_user(request, user_id):
         if new_password:
             user_to_edit.set_password(new_password)
 
+        registrar_log(request.user, 'EDICION', f'Editó usuario: {user_to_edit.documento} - {user_to_edit.first_name}', request)
         user_to_edit.save()
         messages.success(request, f"Datos de {user_to_edit.first_name} actualizados correctamente.")
         return redirect('admin_dashboard')
 
     return render(request, 'edit_user.html', {'user_to_edit': user_to_edit})
+
+
+# --- ERRORES ---
 
 def error_404(request, exception):
     return render(request, '404.html', status=404)
