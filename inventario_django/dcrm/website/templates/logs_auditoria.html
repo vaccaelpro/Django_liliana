@@ -23,7 +23,7 @@
 
     <div class="dash-container">
         <!-- Logs de auditoría -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="margin: 0;">Registro de Actividad</h2>
             <div style="display: flex; gap: 10px;">
                 <a href="{% url 'export_logs_pdf' %}" class="btn-primary" style="background-color: #dc3545; width: auto; padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
@@ -34,6 +34,7 @@
                 </a>
             </div>
         </div>
+        <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
@@ -64,6 +65,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </body>
 

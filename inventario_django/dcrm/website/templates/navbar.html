@@ -54,8 +54,46 @@
         </a>
         {% endif %}
     </div>
+
+    <!-- Botón hamburguesa -->
+    <button class="navbar-hamburger" id="hamburgerBtn" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+    </button>
 </nav>
+
+<!-- Menú móvil desplegable -->
+<div class="mobile-menu" id="mobileMenu">
+    {% if user.is_authenticated %}
+    {% if user.rol == 'ADMINISTRADOR' %}
+    <a href="{% url 'admin_dashboard' %}" class="mobile-link">
+        <i class="fa-solid fa-gauge"></i> Dashboard
+    </a>
+    <a href="{% url 'gestion_usuarios' %}" class="mobile-link">
+        <i class="fa-solid fa-users"></i> Usuarios
+    </a>
+    <a href="{% url 'logs_auditoria' %}" class="mobile-link">
+        <i class="fa-solid fa-list-check"></i> Logs
+    </a>
+    {% elif user.rol == 'APRENDIZ' %}
+    <a href="{% url 'apprentice_dashboard' %}" class="mobile-link">
+        <i class="fa-solid fa-house"></i> Inicio
+    </a>
+    <a href="{% url 'perfil_aprendiz' %}" class="mobile-link">
+        <i class="fa-solid fa-key"></i> Cambiar Contraseña
+    </a>
+    {% endif %}
+    <div class="mobile-user-info">
+        <span class="navbar-name">{{ user.first_name }} {{ user.last_name }}</span>
+        <span class="navbar-role">{{ user.get_rol_display }}</span>
+    </div>
+    <a href="{% url 'logout' %}" class="mobile-link" style="color: #e74c3c;">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+    </a>
+    {% endif %}
+</div>
+
 <script>
+    // Auto-cerrar alertas
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(alert => {
             alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
@@ -64,4 +102,19 @@
             setTimeout(() => alert.remove(), 400);
         });
     }, 4000);
+
+    // Menú hamburguesa
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburgerBtn.addEventListener('click', () => {
+        hamburgerBtn.classList.toggle('open');
+        mobileMenu.classList.toggle('open');
+    });
+    // Cerrar menú al hacer click en un link
+    document.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburgerBtn.classList.remove('open');
+            mobileMenu.classList.remove('open');
+        });
+    });
 </script>
