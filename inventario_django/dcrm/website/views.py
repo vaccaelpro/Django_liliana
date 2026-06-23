@@ -290,6 +290,39 @@ def cambiar_password_aprendiz(request):
 
     return redirect('apprentice_dashboard')
 
+@login_required(login_url='login')
+@user_passes_test(es_aprendiz, login_url='login')
+def perfil_aprendiz(request):
+    if request.method == 'POST':
+        nombres   = sanitizar(request.POST.get('nombres', ''))
+        apellidos = sanitizar(request.POST.get('apellidos', ''))
+        email     = sanitizar(request.POST.get('email', ''))
+
+        errores = {}
+        if not REGEX_NOMBRES.match(nombres):
+            errores['nombres'] = "Solo letras y espacios (2–50 caracteres)."
+        if not REGEX_NOMBRES.match(apellidos):
+            errores['apellidos'] = "Solo letras y espacios (2–50 caracteres)."
+        if not REGEX_EMAIL.match(email):
+            errores['email'] = "Formato de correo no válido."
+        if Usuario.objects.filter(email=email).exclude(id=request.user.id).exists():
+            errores['email'] = "Ese correo ya está en uso por otro usuario."
+
+        if errores:
+            for msg in errores.values():
+                messages.error(request, msg)
+            return render(request, 'perfil_aprendiz.html')
+
+        request.user.first_name = nombres
+        request.user.last_name  = apellidos
+        request.user.email      = email
+        request.user.save()
+        registrar_log(request.user, 'EDICION', 'Aprendiz actualizó su perfil', request)
+        messages.success(request, "Perfil actualizado correctamente.")
+        return redirect('perfil_aprendiz')
+
+    return render(request, 'perfil_aprendiz.html')
+
 
 # ============================================================
 # ERRORES PERSONALIZADOS

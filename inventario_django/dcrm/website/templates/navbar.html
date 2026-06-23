@@ -21,6 +21,10 @@
             class="nav-link {% if request.resolver_match.url_name == 'apprentice_dashboard' %}active{% endif %}">
             <i class="fa-solid fa-house"></i> Inicio
         </a>
+        <a href="{% url 'perfil_aprendiz' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'perfil_aprendiz' %}active{% endif %}">
+            <i class="fa-solid fa-key"></i> Cambiar Contraseña
+        </a>
         {% endif %}
         {% endif %}
     </div>
@@ -47,7 +51,6 @@
     </div>
 </nav>
 <script>
-    // Auto-dismiss alertas después de 4 segundos
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(alert => {
             alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
